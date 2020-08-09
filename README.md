@@ -35,7 +35,7 @@ visualizer(model, filename='graph', title='Neural Network', format=None, view=Fa
 ```
 
 * model: a Keras model instance.
-* filename: where to save the vizualization.
+* filename: where to save the visualization.
 * title: A title for the graph.
 * format: file format to save 'pdf', 'png'.
 * view: open file after process if True.
