@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="keras_visualizer",
-    version="2.1",
+    version="2.2",
     author="Mahyar Amiri",
     description="A Keras Model Visualizer",
     long_description=long_description,
