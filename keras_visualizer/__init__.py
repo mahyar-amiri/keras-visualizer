@@ -17,7 +17,7 @@ shall be included in all copies or substantial portions of the Software.
 
 
 def visualizer(model, filename='graph', title='Neural Network', format=None, view=False):
-    """Vizualizez a Sequential model.
+    """Visualize a Sequential model.
 
     # Arguments
 
