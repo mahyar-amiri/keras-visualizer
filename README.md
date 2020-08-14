@@ -46,8 +46,8 @@ visualizer(model, filename='graph', format=None, view=False)
 * `format` : file format to save 'pdf', 'png'.
 * `view` : open file after process if True.
 
-> **Note :**
-> change `format='png'` or `format='pdf'` to save visualization file.
+> **Note :**\
+> change `format='png'` or `format='pdf'` to save visualization file.\
 > use `view=True` to open visualization file.
 
 ## Example
