@@ -2,8 +2,8 @@
 
 a python library for visualizing keras models.
 
-[Keras Visualizer on GitHub](https://github.com/lordmahyar/keras-visualizer)
-[Keras Visualizer on PyPI](https://pypi.org/project/keras-visualizer/)
+[Keras Visualizer on GitHub](https://github.com/lordmahyar/keras-visualizer)\
+[Keras Visualizer on PyPI](https://pypi.org/project/keras-visualizer/)\
 [Keras Visualizer on Libraries.io](https://libraries.io/pypi/keras-visualizer)
 ## Dependencies
 
