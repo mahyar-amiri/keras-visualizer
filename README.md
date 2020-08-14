@@ -5,8 +5,8 @@ A Python Library for Visualizing Keras Models.
 
 ## New 2.4
 > support `Dense`, `Conv2D`, `MaxPooling2D`, `Dropout`, `Flatten`, `Activation` layers.\
-> added `Activation` info for Dense & Conv2D layers.\
-> support view output file after visualizing.\
+> added `Activation` info for `Dense` & `Conv2D` layers.\
+> added `view` output file after visualizing.\
 
 \
 [Keras Visualizer on GitHub](https://github.com/lordmahyar/keras-visualizer)\
