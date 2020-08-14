@@ -3,13 +3,19 @@
 
 A Python Library for Visualizing Keras Models.
 
+## New 2.4
+> support `Dense`, `Conv2D`, `MaxPooling2D`, `Dropout`, `Flatten`, `Activation` layers.\
+> added `Activation` info for Dense & Conv2D layers.\
+> support view output file after visualizing.\
+
+\
 [Keras Visualizer on GitHub](https://github.com/lordmahyar/keras-visualizer)\
 [Keras Visualizer on PyPI](https://pypi.org/project/keras-visualizer/)\
 [Keras Visualizer on Libraries.io](https://libraries.io/pypi/keras-visualizer)
 
 ## Dependencies
 
-* keras
+* keras (or tensorflow v2)
 * graphviz
 ```python
 sudo pip3 install keras
@@ -18,10 +24,16 @@ sudo apt-get install graphviz && pip3 install graphviz
 
 ## Installation
 
-
+### install
 Use python package manager (pip) to install Keras Visualizer.
 ```bash
 pip3 install keras-visualizer
+```
+
+### upgarde
+Use python package manager (pip) to upgrade Keras Visualizer.
+```bash
+pip3 install keras-visualizer --upgrade
 ```
 
 ## Usage
@@ -49,7 +61,7 @@ visualizer(model, filename='graph', format=None, view=False)
 > **Note :**\
 > change `format='png'` or `format='pdf'` to save visualization file.\
 > use `view=True` to open visualization file.
-
+\
 ## Example
 you can use simple examples in `examples` directory.
 
