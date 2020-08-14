@@ -4,13 +4,13 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="keras_visualizer",
-    version="2.2",
+    name="keras-visualizer",
+    version="2.4",
     author="Mahyar Amiri",
     description="A Keras Model Visualizer",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/lordmahyar/keras_visualizer",
+    url="https://github.com/lordmahyar/keras-visualizer",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
