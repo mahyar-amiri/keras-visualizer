@@ -1,16 +1,18 @@
 # Keras Visualizer
 ![PyPI](https://img.shields.io/pypi/v/keras-visualizer) ![GitHub repo size](https://img.shields.io/github/repo-size/lordmahyar/keras-visualizer)
-
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lordmahyar/keras-visualizer/)\
 A Python Library for Visualizing Keras Models.
 
 ## New 2.4
 > support `Dense`, `Conv2D`, `MaxPooling2D`, `Dropout`, `Flatten`, `Activation` layers.\
+\
 > added `Activation` info for `Dense` & `Conv2D` layers.\
+\
 > added `view` output file after visualizing.
 
 \
-[Keras Visualizer on GitHub](https://github.com/lordmahyar/keras-visualizer)\
-[Keras Visualizer on PyPI](https://pypi.org/project/keras-visualizer/)\
+[Keras Visualizer on GitHub](https://github.com/lordmahyar/keras-visualizer) \
+[Keras Visualizer on PyPI](https://pypi.org/project/keras-visualizer/) \
 [Keras Visualizer on Libraries.io](https://libraries.io/pypi/keras-visualizer)
 
 ## Dependencies
@@ -63,7 +65,7 @@ visualizer(model, filename='graph', format=None, view=False)
 > use `view=True` to open visualization file.
 \
 ## Example
-you can use simple examples in `examples` directory.
+you can use simple examples as `.py` or `.ipynb` format in `examples` directory.
 
 ### Example 1 :
 ```python
