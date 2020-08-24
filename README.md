@@ -63,7 +63,7 @@ visualizer(model, filename='graph', format=None, view=False)
 > **Note :**\
 > change `format='png'` or `format='pdf'` to save visualization file.\
 > use `view=True` to open visualization file.
-\
+
 ## Example
 you can use simple examples as `.py` or `.ipynb` format in `examples` directory.
 
