@@ -1,202 +1,215 @@
-"""
-Copyright (C) 2020 by Mahyar Amiri
-
-Permission is hereby granted, free of charge,
-to any person obtaining a copy of this software and associated
-documentation files (the 'Software'),
-to deal in the Software without restriction,
-including without l> imitation the rights to
-use, copy, modify, merge, publish, distribute,
-sublicense, and/or sell copies of the Software,
-and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice
-shall be included in all copies or substantial portions of the Software.
-"""
-
-
-def visualizer(model, filename='graph', format=None, view=False):
+def visualizer(model, file_name='graph', file_format=None, view=False, settings=None):
     """Visualize a Sequential model.
 
     # Arguments
 
         model: a Keras model instance.
 
-        filename: where to save the visualization.
+        file_name: where to save the visualization.
 
-        format: file format to save 'pdf', 'png'.
+        file_format: file format to save 'pdf', 'png'.
 
         view: open file after process if True.
 
+        settings: dictionary of valid configurations.
+
     * change format to 'png' or 'pdf' to save visualization file
     """
-    import json
     from graphviz import Digraph
-    try:
-        import keras as keras
-        from keras.models import Sequential
-        from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten, Activation
-    except:
-        import tensorflow.keras as keras
-        from tensorflow.keras.models import Sequential
-        from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten, Activation
+
+    main_settings = {
+        # ALL LAYERS
+        'MAX_NEURONS': 10,
+        'ARROW_COLOR': '#707070',
+        # INPUT LAYERS
+        'INPUT_DENSE_COLOR': '#2ecc71',
+        'INPUT_EMBEDDING_COLOR': 'black',
+        'INPUT_EMBEDDING_FONT': 'white',
+        'INPUT_GRAYSCALE_COLOR': 'black:white',
+        'INPUT_GRAYSCALE_FONT': 'white',
+        'INPUT_RGB_COLOR': '#e74c3c:#3498db',
+        'INPUT_RGB_FONT': 'white',
+        # HIDDEN LAYERS
+        'HIDDEN_DENSE_COLOR': '#3498db',
+        'HIDDEN_CONV_COLOR': '#5faad0',
+        'HIDDEN_CONV_FONT': 'black',
+        'HIDDEN_POOLING_COLOR': '#8e44ad',
+        'HIDDEN_POOLING_FONT': 'white',
+        'HIDDEN_FLATTEN_COLOR': '#2c3e50',
+        'HIDDEN_FLATTEN_FONT': 'white',
+        'HIDDEN_DROPOUT_COLOR': '#f39c12',
+        'HIDDEN_DROPOUT_FONT': 'black',
+        'HIDDEN_ACTIVATION_COLOR': '#00b894',
+        'HIDDEN_ACTIVATION_FONT': 'black',
+        'HIDDEN_LAYER_COLOR': 'black',
+        'HIDDEN_LAYER_FONT': 'white',
+        # OUTPUT LAYER
+        'OUTPUT_DENSE_COLOR': '#e74c3c',
+    }
+
+    settings = {**main_settings, **settings} if settings is not None else {**main_settings}
+
     input_layer = 0
     hidden_layers_nr = 0
     layer_types = []
     hidden_layers = []
     output_layer = 0
-    for layer in model.layers:
-        if layer == model.layers[0]:
-            input_layer = int(str(layer.input_shape).split(',')[1][1:-1])
-            hidden_layers_nr += 1
-            if type(layer) == Dense:
-                hidden_layers.append(int(str(layer.output_shape).split(',')[1][1:-1]))
-                layer_types.append('Dense')
-            else:
-                hidden_layers.append(1)
-                if type(layer) == Conv2D:
-                    layer_types.append('Conv2D')
-                elif type(layer) == MaxPooling2D:
-                    layer_types.append('MaxPooling2D')
-                elif type(layer) == Dropout:
-                    layer_types.append('Dropout')
-                elif type(layer) == Flatten:
-                    layer_types.append('Flatten')
-                elif type(layer) == Activation:
-                    layer_types.append('Activation')
+
+    for num, layer in enumerate(model.layers, 1):
+        if num == 1:
+            input_layer = layer.input_shape[1]
+        if num == len(model.layers):
+            output_layer = layer.output_shape[1]
         else:
-            if layer == model.layers[-1]:
-                output_layer = int(str(layer.output_shape).split(',')[1][1:-1])
-            else:
-                hidden_layers_nr += 1
-                if type(layer) == Dense:
-                    hidden_layers.append(int(str(layer.output_shape).split(',')[1][1:-1]))
-                    layer_types.append('Dense')
-                else:
-                    hidden_layers.append(1)
-                    if type(layer) == Conv2D:
-                        layer_types.append('Conv2D')
-                    elif type(layer) == MaxPooling2D:
-                        layer_types.append('MaxPooling2D')
-                    elif type(layer) == Dropout:
-                        layer_types.append('Dropout')
-                    elif type(layer) == Flatten:
-                        layer_types.append('Flatten')
-                    elif type(layer) == Activation:
-                        layer_types.append('Activation')
+            hidden_layers_nr += 1
+            hidden_layers.append(layer.output_shape[1] if layer.__class__.__name__ == 'Dense' else 1)
+            layer_types.append(f'{layer.__class__.__name__}')
+
         last_layer_nodes = input_layer
         nodes_up = input_layer
-        if type(model.layers[0]) != Dense:
+
+        if model.layers[0].__class__.__name__ != 'Dense':
             last_layer_nodes = 1
             nodes_up = 1
             input_layer = 1
 
-        graph = Digraph('Graph', filename=filename)
+        # VISUALIZE MODEL
+        graph = Digraph('Graph', filename=file_name)
         n = 0
-        graph.graph_attr.update(splines='false', nodesep='1', ranksep='2')
+        graph.graph_attr.update(
+            nodesep='1',  # X-SPACE
+            ranksep='2',  # Y-SPACE
+            splines='false'
+        )
+
         # Input Layer
         with graph.subgraph(name='cluster_input') as c:
-
-            if type(model.layers[0]) == Dense:
-                input_units = int(str(model.layers[0].input_shape).split(',')[1][1:-1])
-                the_label = f'Input Units: {input_units}'
-                if input_units > 10:
-                    the_label += f' (+{str(input_units - 10)} more)'
-                    input_layer = 10
-                the_label += f'\nActivation: {str(model.layers[0].get_config()["activation"])}'
+            # DENSE LAYER INPUT
+            if model.layers[0].__class__.__name__ == 'Dense':
+                input_units = model.layers[0].input_shape[1]
+                label_dense_input = f'Input Units: {input_units}'
+                if input_units > settings['MAX_NEURONS']:
+                    label_dense_input += f' (+{input_units - settings["MAX_NEURONS"]} more)'
+                    input_layer = settings['MAX_NEURONS']
+                label_dense_input += f'\nActivation: {model.layers[0].get_config()["activation"]}'
                 c.attr(color='white')
                 for i in range(0, input_layer):
                     n += 1
                     c.node(str(n))
                     c.attr(rank='same')
-                    c.node_attr.update(color='#2ecc71', style='filled', fontcolor='#2ecc71', shape='circle')
-                c.node(str(n+1)*3, the_label, shape='rectangle', fontsize='18', color='white', fontcolor='black')
-
-            elif type(model.layers[0]) == Conv2D:
-                pxls = str(model.layers[0].input_shape).split(',')
-                clr = int(pxls[3][1:-1])
+                    c.node_attr.update(shape='circle', style='filled', color=settings['INPUT_DENSE_COLOR'], fontcolor=settings['INPUT_DENSE_COLOR'])
+                c.node(str(n + 1) * 3, label_dense_input, shape='rectangle', fontsize='18', color='white', fontcolor='black')
+            # EMBEDDING LAYER INPUT
+            elif model.layers[0].__class__.__name__ == 'Embedding':
+                input_dim = model.layers[0].input_dim
+                output_dim = model.layers[0].output_dim
+                n += 1
+                c.node(str(n), label=f'Embedding\nInput Dim: {input_dim}\nOutput Dim: {output_dim}', shape='square', style='filled', fillcolor=settings['INPUT_EMBEDDING_COLOR'], fontcolor=settings['INPUT_EMBEDDING_FONT'])
+            # CONV2D LAYER INPUT (IMAGE)
+            elif 'Conv' in model.layers[0].__class__.__name__:
+                pxls = model.layers[0].input_shape
+                clr = pxls[-1]
+                node_color = 'white'
+                node_font = 'black'
                 if clr == 1:
                     clrmap = 'Grayscale'
-                    the_color = 'black:white'
+                    node_color = settings['INPUT_GRAYSCALE_COLOR']
+                    node_font = settings['INPUT_GRAYSCALE_FONT']
                 elif clr == 3:
                     clrmap = 'RGB'
-                    the_color = '#e74c3c:#3498db'
+                    node_color = settings['INPUT_RGB_COLOR']
+                    node_font = settings['INPUT_RGB_FONT']
                 else:
                     clrmap = ''
                 n += 1
-                c.node(str(n), label=f'Image\n{pxls[1]} x{pxls[2]} pixels\n{clrmap}', fontcolor='white', shape='square', style='filled', fillcolor=the_color)
+                c.node(str(n), label=f'Image\n{pxls[-3]} x {pxls[-2]} pixels\n{clrmap}', shape='square', style='filled', fillcolor=node_color, fontcolor=node_font)
             else:
-                raise ValueError('Keras Visualizer: Layer not supported for visualizing')
+                raise ValueError('[Keras Visualizer] Input Layer is not supported for visualizing')
 
         # Hidden Layers
         for i in range(0, hidden_layers_nr):
             with graph.subgraph(name='cluster_' + str(i + 1)) as c:
+                # Dense Layer
                 if layer_types[i] == 'Dense':
                     c.attr(color='white')
                     c.attr(rank='same')
-                    # If hidden_layers[i] > 10, dont include all
-                    units = int(str(model.layers[i].output_shape).split(',')[1][1:-1])
-                    the_label = f'Units: {units}'
-                    if units > 10:
-                        the_label += f' (+{str(units - 10)} more)'
-                        hidden_layers[i] = 10
-                    the_label += f'\nActivation: {str(model.layers[i].get_config()["activation"])}'
-                    c.node(str(n)*3, the_label, shape='rectangle', fontsize='18', color='white', fontcolor='black')
+                    # If hidden_layers[i] > MAX_NEURONS, dont include all
+                    units = model.layers[i].output_shape[1]
+                    label_dense = f'Units: {units}'
+                    if units > settings['MAX_NEURONS']:
+                        label_dense += f' (+{units - settings["MAX_NEURONS"]} more)'
+                        hidden_layers[i] = settings['MAX_NEURONS']
+                    label_dense += f'\nActivation: {model.layers[i].get_config()["activation"]}'
+                    c.node(str(n) * 3, label_dense, shape='rectangle', fontsize='18', color='white', fontcolor='black')
                     for j in range(0, hidden_layers[i]):
                         n += 1
-                        c.node(str(n), shape='circle', style='filled', color='#3498db', fontcolor='#3498db')
+                        c.node(str(n), shape='circle', style='filled', color=settings['HIDDEN_DENSE_COLOR'], fontcolor=settings['HIDDEN_DENSE_COLOR'])
                         for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                             graph.edge(str(h), str(n))
                     last_layer_nodes = hidden_layers[i]
                     nodes_up += hidden_layers[i]
-                elif layer_types[i] == 'Conv2D':
-                    c.attr(style='filled', color='#5faad0')
+                # Convolutional Layer
+                elif 'Conv' in layer_types[i]:
+                    c.attr(style='filled', color=settings['HIDDEN_CONV_COLOR'])
                     n += 1
-                    activation = str(model.layers[0].get_config()["activation"])
-                    kernel_size = str(model.layers[i].get_config()['kernel_size']).split(',')[0][1] + 'x' + \
-                                  str(model.layers[i].get_config()['kernel_size']).split(',')[1][1: -1]
-                    filters = str(model.layers[i].get_config()['filters'])
-                    c.node('conv_' + str(n), label=f'Convolutional Layer\nKernel Size: {kernel_size}\nFilters: {filters}\nActivation: {activation}', shape='square')
-                    c.node(str(n), label=filters + '\nFeature Maps', shape='square')
+                    activation = model.layers[0].get_config().get('activation')
+                    kernel_size = model.layers[i].get_config().get('kernel_size')
+                    filters = model.layers[i].get_config().get('filters', 0)
+                    label_conv = f'{layer_types[i]} Layer\nKernel Size: {kernel_size}\nFilters: {filters}\nActivation: {activation}'
+                    c.node('conv_' + str(n), label=label_conv, shape='square', fontcolor=settings['HIDDEN_CONV_FONT'])
+                    c.node(str(n), label=f'{filters}\nFeature Maps', shape='square', fontcolor=settings['HIDDEN_CONV_FONT'])
                     graph.edge('conv_' + str(n), str(n))
                     for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                         graph.edge(str(h), 'conv_' + str(n))
                     last_layer_nodes = 1
                     nodes_up += 1
-                elif layer_types[i] == 'MaxPooling2D':
+                # Pooling Layer
+                elif 'Pooling' in layer_types[i]:
                     c.attr(color='white')
                     n += 1
-
-                    pool_size = str(model.layers[i].get_config()['pool_size']).split(',')[0][1] + 'x' + \
-                                str(model.layers[i].get_config()['pool_size']).split(',')[1][1: -1]
-                    c.node(str(n), label=f'Max Pooling\nPool Size: {pool_size}', style='filled', fillcolor='#8e44ad', fontcolor='white')
+                    pool_size = model.layers[i].get_config().get('pool_size', None)
+                    label_pooling = f'{layer_types[i]}' + (f'\nPool Size: {pool_size}' if pool_size is not None else '')
+                    c.node(str(n), label=label_pooling, shape='invtrapezium', style='filled', fillcolor=settings['HIDDEN_POOLING_COLOR'], fontcolor=settings['HIDDEN_POOLING_FONT'])
                     for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                         graph.edge(str(h), str(n))
                     last_layer_nodes = 1
                     nodes_up += 1
+                # Flatten Layer
                 elif layer_types[i] == 'Flatten':
                     n += 1
                     c.attr(color='white')
-                    c.node(str(n), label='Flattening', shape='invtriangle', style='filled', fillcolor='#2c3e50', fontcolor='white')
+                    c.node(str(n), label='Flattening', shape='triangle', style='filled', fillcolor=settings['HIDDEN_FLATTEN_COLOR'], fontcolor=settings['HIDDEN_FLATTEN_FONT'])
                     for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                         graph.edge(str(h), str(n))
                     last_layer_nodes = 1
                     nodes_up += 1
-                elif layer_types[i] == 'Dropout':
+                # Dropout Layer
+                elif 'Dropout' in layer_types[i]:
                     n += 1
                     c.attr(color='white')
-                    c.node(str(n), label='Dropout Layer', style='filled', fontcolor='white', fillcolor='#f39c12')
+                    rate = model.layers[i].get_config().get('rate', None)
+                    label_dropout = f'{layer_types[i]}\nRate: {rate}'
+                    c.node(str(n), label=label_dropout, shape='Mcircle', style='filled', fillcolor=settings['HIDDEN_DROPOUT_COLOR'], fontcolor=settings['HIDDEN_DROPOUT_FONT'])
                     for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                         graph.edge(str(h), str(n))
                     last_layer_nodes = 1
                     nodes_up += 1
+                # Activation Layer
                 elif layer_types[i] == 'Activation':
                     n += 1
                     c.attr(color='white')
-                    fnc = model.layers[i].get_config()['activation']
-                    c.node(str(n), shape='octagon', label=f'Activation Layer\nFunction: {fnc}', style='filled', fontcolor='black',
-                           fillcolor='#00b894')
+                    fnc = model.layers[i].get_config().get('activation')
+                    c.node(str(n), label=f'Activation Layer\nFunction: {fnc}', shape='octagon', style='filled', fillcolor=settings['HIDDEN_ACTIVATION_COLOR'], fontcolor=settings['HIDDEN_ACTIVATION_FONT'])
+                    for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
+                        graph.edge(str(h), str(n))
+                    last_layer_nodes = 1
+                    nodes_up += 1
+                # OTHER Layers
+                else:
+                    c.attr(color='white')
+                    n += 1
+                    label_layer = f'{layer_types[i]} Layer'
+                    c.node(str(n), label=label_layer, shape='egg', style='filled', fillcolor=settings['HIDDEN_LAYER_COLOR'], fontcolor=settings['HIDDEN_LAYER_FONT'])
                     for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                         graph.edge(str(h), str(n))
                     last_layer_nodes = 1
@@ -204,31 +217,34 @@ def visualizer(model, filename='graph', format=None, view=False):
 
         # Output Layer
         with graph.subgraph(name='cluster_output') as c:
-            if type(model.layers[-1]) == Dense:
-                output_units = int(str(model.layers[-1].output_shape).split(',')[1][1:-1])
-                the_label = f'Output Units: {output_units}'
-                if output_units > 10:
-                    the_label += f' (+{str(output_units - 10)} more)'
-                    output_layer = 10
-                the_label += f'\nActivation: {str(model.layers[0].get_config()["activation"])}'
-                c.node(str(n) * 3, the_label, shape='rectangle', fontsize='18', color='white', fontcolor='black')
+            if model.layers[-1].__class__.__name__ == 'Dense':
+                output_units = model.layers[-1].output_shape[1]
+                label_dense_output = f'Output Units: {output_units}'
+                if output_units > settings['MAX_NEURONS']:
+                    label_dense_output += f' (+{output_units - settings["MAX_NEURONS"]} more)'
+                    output_layer = settings['MAX_NEURONS']
+                label_dense_output += f'\nActivation: {model.layers[-1].get_config()["activation"]}'
+                c.node(str(n) * 3, label_dense_output, shape='rectangle', fontsize='18', color='white', fontcolor='black')
                 c.attr(color='white')
                 c.attr(rank='same')
                 c.attr(labeljust='1')
                 for i in range(1, output_layer + 1):
                     n += 1
-                    c.node(str(n), shape='circle', style='filled', color='#e74c3c', fontcolor='#e74c3c')
+                    c.node(str(n), shape='circle', style='filled', color=settings['OUTPUT_DENSE_COLOR'], fontcolor=settings['OUTPUT_DENSE_COLOR'])
                     for h in range(nodes_up - last_layer_nodes + 1, nodes_up + 1):
                         graph.edge(str(h), str(n))
-                c.node_attr.update(color='#2ecc71', style='filled', fontcolor='#2ecc71', shape='circle')
+                # c.node_attr.update(color='#2ecc71', style='filled', fontcolor='#2ecc71', shape='circle')
+            else:
+                raise ValueError('[Keras Visualizer] Output layer is not supported for visualizing')
 
         graph.attr(arrowShape='none')
-        graph.edge_attr.update(arrowhead='none', color='#707070')
+        graph.edge_attr.update(arrowhead='none', color=settings['ARROW_COLOR'])
 
+    # SAVE GRAPH
     try:
-        if format is not None:
-            graph.render(format=format, view=view)
+        if file_format is not None:
+            graph.render(format=file_format, view=view)
         else:
             graph.save()
     except Exception:
-        raise ValueError('Keras Visualizer: Error while visualizing')
+        raise ValueError(f'[Keras Visualizer] Error while visualizing: {Exception}')
