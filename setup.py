@@ -9,6 +9,7 @@ with open('VERSION', 'r') as v:
 setuptools.setup(
     name='keras-visualizer',
     version=version,
+    license='MIT',
     author='Mahyar Amiri',
     author_email='mmaahhyyaarr@gmail.com',
     description='A Keras Model Visualizer',

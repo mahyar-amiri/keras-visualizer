@@ -48,6 +48,7 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
     }
 
     settings = {**main_settings, **settings} if settings is not None else {**main_settings}
+    max_neurons = settings['MAX_NEURONS']
 
     input_layer = 0
     hidden_layers_nr = 0
@@ -88,9 +89,9 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
             if model.layers[0].__class__.__name__ == 'Dense':
                 input_units = model.layers[0].input_shape[1]
                 label_dense_input = f'Input Units: {input_units}'
-                if input_units > settings['MAX_NEURONS']:
-                    label_dense_input += f' (+{input_units - settings["MAX_NEURONS"]} more)'
-                    input_layer = settings['MAX_NEURONS']
+                if max_neurons is not None and input_units > max_neurons:
+                    label_dense_input += f' (+{input_units - max_neurons} more)'
+                    input_layer = max_neurons
                 label_dense_input += f'\nActivation: {model.layers[0].get_config()["activation"]}'
                 c.attr(color='white')
                 for i in range(0, input_layer):
@@ -136,9 +137,9 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                     # If hidden_layers[i] > MAX_NEURONS, dont include all
                     units = model.layers[i].output_shape[1]
                     label_dense = f'Units: {units}'
-                    if units > settings['MAX_NEURONS']:
-                        label_dense += f' (+{units - settings["MAX_NEURONS"]} more)'
-                        hidden_layers[i] = settings['MAX_NEURONS']
+                    if max_neurons is not None and units > max_neurons:
+                        label_dense += f' (+{units - max_neurons} more)'
+                        hidden_layers[i] = max_neurons
                     label_dense += f'\nActivation: {model.layers[i].get_config()["activation"]}'
                     c.node(str(n) * 3, label_dense, shape='rectangle', fontsize='18', color='white', fontcolor='black')
                     for j in range(0, hidden_layers[i]):
@@ -220,9 +221,9 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
             if model.layers[-1].__class__.__name__ == 'Dense':
                 output_units = model.layers[-1].output_shape[1]
                 label_dense_output = f'Output Units: {output_units}'
-                if output_units > settings['MAX_NEURONS']:
-                    label_dense_output += f' (+{output_units - settings["MAX_NEURONS"]} more)'
-                    output_layer = settings['MAX_NEURONS']
+                if max_neurons is not None and output_units > max_neurons:
+                    label_dense_output += f' (+{output_units - max_neurons} more)'
+                    output_layer = max_neurons
                 label_dense_output += f'\nActivation: {model.layers[-1].get_config()["activation"]}'
                 c.node(str(n) * 3, label_dense_output, shape='rectangle', fontsize='18', color='white', fontcolor='black')
                 c.attr(color='white')

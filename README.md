@@ -1,7 +1,9 @@
 # Keras Visualizer
 
-[![PyPI](https://img.shields.io/pypi/v/keras-visualizer)](https://pypi.org/project/keras-visualizer)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/keras-visualizer?color=blue)](https://pypistats.org/packages/keras-visualizer)
+[![PyPI](https://img.shields.io/pypi/v/keras-visualizer?label=PyPI&logo=pypi&logoColor=FFE873)](https://pypi.org/project/keras-visualizer)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/keras-visualizer?label=Downloads&color=blue)](https://pypistats.org/packages/keras-visualizer)
+[![GitHub - License](https://img.shields.io/github/license/mahyar-amiri/django-comment-system?label=License&color=blue)](LICENSE)
+[![Virgool.io](https://img.shields.io/static/v1?label=Virgool.io&message=keras-visualizer&color=blue)](https://vrgl.ir/5KSoN)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mahyar-amiri/keras-visualizer/)
 
 A Python Library for Visualizing Keras Models.
@@ -106,6 +108,26 @@ settings = {
     # OUTPUT LAYER
     'OUTPUT_DENSE_COLOR': '#e74c3c',
 }
+```
+
+**Note**:
+
+* set `'MAX_NEURONS': None` to disable max neurons constraint.
+* see list of color names [here](https://graphviz.org/doc/info/colors.html).
+
+```python
+from keras_visualizer import visualizer
+
+my_settings = {
+    'MAX_NEURONS': None,
+    'INPUT_DENSE_COLOR': 'teal',
+    'HIDDEN_DENSE_COLOR': 'gray',
+    'OUTPUT_DENSE_COLOR': 'crimson'
+}
+
+# model = ...
+
+visualizer(model, file_format='png', settings=my_settings)
 ```
 
 ## Examples
