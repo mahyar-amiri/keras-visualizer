@@ -23,7 +23,7 @@ jobs:
 
     - name: Build package
       working-directory: .
-      run: python -m build
+      run: echo pwd && python -m build
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
