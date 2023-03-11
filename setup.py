@@ -3,7 +3,7 @@ import setuptools
 with open('README.md', 'r') as f:
     long_description = f.read()
 
-with open('VERSION', 'r') as v:
+with open('VERSION.txt', 'r') as v:
     version = v.read()
 
 setuptools.setup(
