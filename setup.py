@@ -1,14 +1,13 @@
 import setuptools
 
+VERSION = '3.1.1'
+
 with open('README.md', 'r') as f:
     long_description = f.read()
 
-with open('VERSION.txt', 'r') as v:
-    version = v.read()
-
 setuptools.setup(
     name='keras-visualizer',
-    version=version,
+    version=VERSION,
     license='MIT',
     author='Mahyar Amiri',
     author_email='mmaahhyyaarr@gmail.com',
