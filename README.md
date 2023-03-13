@@ -1,5 +1,7 @@
 # Keras Visualizer
 
+![LOGO](logo.png)
+
 [![PyPI](https://img.shields.io/pypi/v/keras-visualizer?label=PyPI&logo=pypi&logoColor=FFE873)](https://pypi.org/project/keras-visualizer)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keras-visualizer?label=Downloads&color=blue)](https://pypistats.org/packages/keras-visualizer)
 [![GitHub - License](https://img.shields.io/github/license/mahyar-amiri/django-comment-system?label=License&color=blue)](LICENSE)
