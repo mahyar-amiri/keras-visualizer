@@ -93,6 +93,8 @@ settings = {
     'INPUT_GRAYSCALE_FONT': 'white',
     'INPUT_RGB_COLOR': '#e74c3c:#3498db',
     'INPUT_RGB_FONT': 'white',
+    'INPUT_LAYER_COLOR': 'black',
+    'INPUT_LAYER_FONT': 'white',
     # HIDDEN LAYERS
     'HIDDEN_DENSE_COLOR': '#3498db',
     'HIDDEN_CONV_COLOR': '#5faad0',
@@ -109,6 +111,8 @@ settings = {
     'HIDDEN_LAYER_FONT': 'white',
     # OUTPUT LAYER
     'OUTPUT_DENSE_COLOR': '#e74c3c',
+    'OUTPUT_LAYER_COLOR': 'black',
+    'OUTPUT_LAYER_FONT': 'white',
 }
 ```
 

@@ -29,6 +29,8 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
         'INPUT_GRAYSCALE_FONT': 'white',
         'INPUT_RGB_COLOR': '#e74c3c:#3498db',
         'INPUT_RGB_FONT': 'white',
+        'INPUT_LAYER_COLOR': 'black',
+        'INPUT_LAYER_FONT': 'white',
         # HIDDEN LAYERS
         'HIDDEN_DENSE_COLOR': '#3498db',
         'HIDDEN_CONV_COLOR': '#5faad0',
@@ -45,6 +47,8 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
         'HIDDEN_LAYER_FONT': 'white',
         # OUTPUT LAYER
         'OUTPUT_DENSE_COLOR': '#e74c3c',
+        'OUTPUT_LAYER_COLOR': 'black',
+        'OUTPUT_LAYER_FONT': 'white',
     }
 
     settings = {**main_settings, **settings} if settings is not None else {**main_settings}
@@ -58,7 +62,7 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
 
     for num, layer in enumerate(model.layers, 1):
         if num == 1:
-            input_layer = layer.input_shape[1]
+            input_layer = layer.input_shape[1] if type(layer.input_shape) == tuple else layer.input_shape[0][1]
         if num == len(model.layers):
             output_layer = layer.output_shape[1]
         else:
@@ -86,13 +90,14 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
         # Input Layer
         with graph.subgraph(name='cluster_input') as c:
             # DENSE LAYER INPUT
-            if model.layers[0].__class__.__name__ == 'Dense':
-                input_units = model.layers[0].input_shape[1]
+            layer = model.layers[0]
+            if layer.__class__.__name__ == 'Dense':
+                input_units = layer.input_shape[1]
                 label_dense_input = f'Input Units: {input_units}'
                 if max_neurons is not None and input_units > max_neurons:
                     label_dense_input += f' (+{input_units - max_neurons} more)'
                     input_layer = max_neurons
-                label_dense_input += f'\nActivation: {model.layers[0].get_config()["activation"]}'
+                label_dense_input += f'\nActivation: {layer.get_config()["activation"]}'
                 c.attr(color='white')
                 for i in range(0, input_layer):
                     n += 1
@@ -101,14 +106,14 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                     c.node_attr.update(shape='circle', style='filled', color=settings['INPUT_DENSE_COLOR'], fontcolor=settings['INPUT_DENSE_COLOR'])
                 c.node(str(n + 1) * 3, label_dense_input, shape='rectangle', fontsize='18', color='white', fontcolor='black')
             # EMBEDDING LAYER INPUT
-            elif model.layers[0].__class__.__name__ == 'Embedding':
-                input_dim = model.layers[0].input_dim
-                output_dim = model.layers[0].output_dim
+            elif layer.__class__.__name__ == 'Embedding':
+                input_dim = layer.input_dim
+                output_dim = layer.output_dim
                 n += 1
                 c.node(str(n), label=f'Embedding\nInput Dim: {input_dim}\nOutput Dim: {output_dim}', shape='square', style='filled', fillcolor=settings['INPUT_EMBEDDING_COLOR'], fontcolor=settings['INPUT_EMBEDDING_FONT'])
             # CONV2D LAYER INPUT (IMAGE)
-            elif 'Conv' in model.layers[0].__class__.__name__:
-                pxls = model.layers[0].input_shape
+            elif 'Conv' in layer.__class__.__name__:
+                pxls = layer.input_shape
                 clr = pxls[-1]
                 node_color = 'white'
                 node_font = 'black'
@@ -125,7 +130,12 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                 n += 1
                 c.node(str(n), label=f'Image\n{pxls[-3]} x {pxls[-2]} pixels\n{clrmap}', shape='square', style='filled', fillcolor=node_color, fontcolor=node_font)
             else:
-                raise ValueError('[Keras Visualizer] Input Layer is not supported for visualizing')
+                # raise ValueError('[Keras Visualizer] Input Layer is not supported for visualizing')
+                c.attr(color='white')
+                n += 1
+                input_layer = layer.input_shape[1] if type(layer.input_shape) == tuple else layer.input_shape[0][1]
+                label_layer = f'{layer.__class__.__name__}\nshape= {input_layer}'
+                c.node(str(n), label=label_layer, shape='egg', style='filled', fillcolor=settings['INPUT_LAYER_COLOR'], fontcolor=settings['INPUT_LAYER_FONT'])
 
         # Hidden Layers
         for i in range(0, hidden_layers_nr):
@@ -236,7 +246,12 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                         graph.edge(str(h), str(n))
                 # c.node_attr.update(color='#2ecc71', style='filled', fontcolor='#2ecc71', shape='circle')
             else:
-                raise ValueError('[Keras Visualizer] Output layer is not supported for visualizing')
+                # raise ValueError('[Keras Visualizer] Output layer is not supported for visualizing')
+                c.attr(color='white')
+                n += 1
+                output_layer = layer.output_shape[1] if type(layer.output_shape) == tuple else layer.output_shape[0][1]
+                label_layer = f'{layer.__class__.__name__}\nshape= {output_layer}'
+                c.node(str(n), label=label_layer, shape='egg', style='filled', fillcolor=settings['OUTPUT_LAYER_COLOR'], fontcolor=settings['OUTPUT_LAYER_FONT'])
 
         graph.attr(arrowShape='none')
         graph.edge_attr.update(arrowhead='none', color=settings['ARROW_COLOR'])
