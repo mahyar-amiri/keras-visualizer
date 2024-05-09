@@ -62,12 +62,24 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
 
     for num, layer in enumerate(model.layers, 1):
         if num == 1:
-            input_layer = layer.input_shape[1] if type(layer.input_shape) == tuple else layer.input_shape[0][1]
+            try:
+                inp_shp = layer.input_shape
+            except:
+                inp_shp = layer.input.shape
+            input_layer = inp_shp[1] if type(inp_shp) == tuple else inp_shp[0][1]
         if num == len(model.layers):
-            output_layer = layer.output_shape[1]
+            try:
+                otp_shp = layer.output_shape
+            except:
+                otp_shp = layer.output.shape
+            output_layer = otp_shp[1]
         else:
             hidden_layers_nr += 1
-            hidden_layers.append(layer.output_shape[1] if layer.__class__.__name__ == 'Dense' else 1)
+            try:
+                otp_shp = layer.output_shape
+            except:
+                otp_shp = layer.output.shape
+            hidden_layers.append(otp_shp[1] if layer.__class__.__name__ == 'Dense' else 1)
             layer_types.append(f'{layer.__class__.__name__}')
 
         last_layer_nodes = input_layer
@@ -92,7 +104,11 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
             # DENSE LAYER INPUT
             layer = model.layers[0]
             if layer.__class__.__name__ == 'Dense':
-                input_units = layer.input_shape[1]
+                try:
+                    inp_shp = layer.input_shape
+                except:
+                    inp_shp = layer.input.shape
+                input_units = inp_shp[1]
                 label_dense_input = f'Input Units: {input_units}'
                 if max_neurons is not None and input_units > max_neurons:
                     label_dense_input += f' (+{input_units - max_neurons} more)'
@@ -113,8 +129,11 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                 c.node(str(n), label=f'Embedding\nInput Dim: {input_dim}\nOutput Dim: {output_dim}', shape='square', style='filled', fillcolor=settings['INPUT_EMBEDDING_COLOR'], fontcolor=settings['INPUT_EMBEDDING_FONT'])
             # CONV2D LAYER INPUT (IMAGE)
             elif 'Conv' in layer.__class__.__name__:
-                pxls = layer.input_shape
-                clr = pxls[-1]
+                try:
+                    inp_shp = layer.input_shape
+                except:
+                    inp_shp = layer.input.shape
+                clr = inp_shp[-1]
                 node_color = 'white'
                 node_font = 'black'
                 if clr == 1:
@@ -128,12 +147,12 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                 else:
                     clrmap = ''
                 n += 1
-                c.node(str(n), label=f'Image\n{pxls[-3]} x {pxls[-2]} pixels\n{clrmap}', shape='square', style='filled', fillcolor=node_color, fontcolor=node_font)
+                c.node(str(n), label=f'Image\n{inp_shp[-3]} x {inp_shp[-2]} pixels\n{clrmap}', shape='square', style='filled', fillcolor=node_color, fontcolor=node_font)
             else:
                 # raise ValueError('[Keras Visualizer] Input Layer is not supported for visualizing')
                 c.attr(color='white')
                 n += 1
-                input_layer = layer.input_shape[1] if type(layer.input_shape) == tuple else layer.input_shape[0][1]
+                input_layer = inp_shp[1] if type(inp_shp) == tuple else inp_shp[0][1]
                 label_layer = f'{layer.__class__.__name__}\nshape= {input_layer}'
                 c.node(str(n), label=label_layer, shape='egg', style='filled', fillcolor=settings['INPUT_LAYER_COLOR'], fontcolor=settings['INPUT_LAYER_FONT'])
 
@@ -145,7 +164,10 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                     c.attr(color='white')
                     c.attr(rank='same')
                     # If hidden_layers[i] > MAX_NEURONS, dont include all
-                    units = model.layers[i].output_shape[1]
+                    try:
+                        units = model.layers[i].output_shape[1]
+                    except:
+                        units = model.layers[i].output.shape[1]
                     label_dense = f'Units: {units}'
                     if max_neurons is not None and units > max_neurons:
                         label_dense += f' (+{units - max_neurons} more)'
@@ -229,7 +251,10 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
         # Output Layer
         with graph.subgraph(name='cluster_output') as c:
             if model.layers[-1].__class__.__name__ == 'Dense':
-                output_units = model.layers[-1].output_shape[1]
+                try:
+                    output_units = model.layers[-1].output_shape[1]
+                except:
+                    output_units = model.layers[-1].output.shape[1]
                 label_dense_output = f'Output Units: {output_units}'
                 if max_neurons is not None and output_units > max_neurons:
                     label_dense_output += f' (+{output_units - max_neurons} more)'
@@ -249,7 +274,11 @@ def visualizer(model, file_name='graph', file_format=None, view=False, settings=
                 # raise ValueError('[Keras Visualizer] Output layer is not supported for visualizing')
                 c.attr(color='white')
                 n += 1
-                output_layer = layer.output_shape[1] if type(layer.output_shape) == tuple else layer.output_shape[0][1]
+                try:
+                    otp_shp = layer.output_shape
+                except:
+                    otp_shp = layer.output.shape
+                output_layer = otp_shp[1] if type(otp_shp) == tuple else otp_shp[0][1]
                 label_layer = f'{layer.__class__.__name__}\nshape= {output_layer}'
                 c.node(str(n), label=label_layer, shape='egg', style='filled', fillcolor=settings['OUTPUT_LAYER_COLOR'], fontcolor=settings['OUTPUT_LAYER_FONT'])
 
